@@ -42,7 +42,7 @@ app = FastAPI(
 
     This API uses JWT (JSON Web Tokens) for authentication.
     To access protected endpoints:
-    1. Register a user at `/users/register`
+    1. Register a user at `/users/`
     2. Login at `/users/login` to get access and refresh tokens
     3. Include the access token in the Authorization header: `Bearer <token>`
     4. Refresh your token at `/users/refresh` when it expires

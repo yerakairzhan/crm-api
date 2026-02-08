@@ -1,6 +1,5 @@
-"""
-Task service with business logic
-"""
+# Task service with business logic
+
 from sqlalchemy.orm import Session
 from uuid import UUID
 from fastapi import HTTPException, status
@@ -12,11 +11,13 @@ from src.models.users import User, UserRole
 
 
 class TaskService:
-    """Service layer for task operations"""
+    # Service layer for task operations
+
 
     @staticmethod
     def create_task(db: Session, task: TaskCreate, current_user: User):
-        """Create a new task (only USER role)"""
+        # Create a new task (only USER role)
+
         if current_user.role != UserRole.USER:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -35,12 +36,14 @@ class TaskService:
 
     @staticmethod
     def get_all_tasks(db: Session, skip: int = 0, limit: int = 100):
-        """Get all tasks sorted by date (newest first)"""
+        # Get all tasks sorted by date (newest first)
+
         return TaskRepository.get_all(db, skip, limit)
 
     @staticmethod
     def get_task(db: Session, task_id: UUID):
-        """Get task by ID"""
+        # Get task by ID
+
         task = TaskRepository.get_by_id(db, task_id)
         if not task:
             raise HTTPException(
@@ -51,7 +54,8 @@ class TaskService:
 
     @staticmethod
     def update_task(db: Session, task_id: UUID, task_update: TaskUpdate, current_user: User):
-        """Update task (only owner)"""
+        # Update task (only owner)
+
         task = TaskRepository.get_by_id(db, task_id)
         if not task:
             raise HTTPException(
@@ -70,7 +74,8 @@ class TaskService:
 
     @staticmethod
     def delete_task(db: Session, task_id: UUID, current_user: User) -> None:
-        """Delete task (only owner)"""
+        # Delete task (only owner)
+
         task = TaskRepository.get_by_id(db, task_id)
         if not task:
             raise HTTPException(

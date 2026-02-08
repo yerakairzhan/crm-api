@@ -1,6 +1,5 @@
-"""
-Database configuration and session management
-"""
+# Database configuration and session management
+
 from sqlalchemy import create_engine, String, TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
@@ -22,10 +21,8 @@ engine = create_engine(DATABASE_URL, **engine_kwargs)
 
 # UUID type with SQLite fallback + conversion
 class GUID(TypeDecorator):
-    """Platform-independent GUID type.
+    # Platform-independent GUID type.
 
-    Uses PostgreSQL UUID type, otherwise stores as CHAR(36) with string conversion.
-    """
 
     impl = CHAR(36)
     cache_ok = True
@@ -58,9 +55,8 @@ Base = declarative_base()
 
 
 def get_db():
-    """
-    Dependency for getting database session
-    """
+    # Dependency for getting database session
+
     db = SessionLocal()
     try:
         yield db
@@ -69,9 +65,8 @@ def get_db():
 
 
 def init_db():
-    """
-    Initialize database tables
-    """
+    # Initialize database tables
+
     from src.models.users import User
     from src.models.tasks import Task
     from src.models.comments import Comment

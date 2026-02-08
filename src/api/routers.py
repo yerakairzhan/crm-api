@@ -1,6 +1,5 @@
-"""
-API Router configuration
-"""
+# API Router configuration
+
 from fastapi import APIRouter
 from src.api import users, tasks, comments, auth
 

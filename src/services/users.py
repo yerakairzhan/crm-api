@@ -1,6 +1,5 @@
-"""
-User service with business logic and JWT authentication
-"""
+# User service with business logic and JWT authentication
+
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from uuid import UUID
@@ -25,21 +24,25 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
 class UserService:
-    """Service layer for user operations"""
+    # Service layer for user operations
+
 
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
-        """Verify a password against its hash"""
+        # Verify a password against its hash
+
         return pwd_context.verify(plain_password, hashed_password)
 
     @staticmethod
     def get_password_hash(password: str) -> str:
-        """Hash a password"""
+        # Hash a password
+
         return pwd_context.hash(password)
 
     @staticmethod
     def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-        """Create JWT access token"""
+        # Create JWT access token
+
         to_encode = data.copy()
         if expires_delta:
             expire = datetime.utcnow() + expires_delta
@@ -51,7 +54,8 @@ class UserService:
 
     @staticmethod
     def create_refresh_token(data: dict) -> str:
-        """Create JWT refresh token"""
+        # Create JWT refresh token
+
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
         to_encode.update({"exp": expire, "type": "refresh"})
@@ -60,7 +64,8 @@ class UserService:
 
     @staticmethod
     def verify_token(token: str, token_type: str = "access") -> TokenData:
-        """Verify JWT token and return token data"""
+        # Verify JWT token and return token data
+
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             user_id: str = payload.get("sub")
@@ -81,7 +86,8 @@ class UserService:
 
     @staticmethod
     def create_user(db: Session, user: UserCreate) -> User:
-        """Create a new user"""
+        # Create a new user
+
         # Check if user already exists
         existing_user = UserRepository.get_by_email(db, user.email)
         if existing_user:
@@ -95,7 +101,8 @@ class UserService:
 
     @staticmethod
     def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
-        """Authenticate a user"""
+        # Authenticate a user
+
         user = UserRepository.get_by_email(db, email)
         if not user:
             return None
@@ -105,7 +112,8 @@ class UserService:
 
     @staticmethod
     def login(db: Session, login_data: UserLogin) -> Token:
-        """Login user and return access/refresh tokens"""
+        # Login user and return access/refresh tokens
+
         user = UserService.authenticate_user(db, login_data.email, login_data.password)
         if not user:
             raise HTTPException(
@@ -130,7 +138,8 @@ class UserService:
 
     @staticmethod
     def refresh(db: Session, refresh_token: str) -> Token:
-        """Refresh access token using refresh token"""
+        # Refresh access token using refresh token
+
         token_data = UserService.verify_token(refresh_token, token_type="refresh")
         if not token_data.user_id:
             raise HTTPException(
@@ -167,7 +176,8 @@ class UserService:
 
     @staticmethod
     def get_user(db: Session, user_id: UUID) -> Optional[User]:
-        """Get user by ID"""
+        # Get user by ID
+
         user = UserRepository.get_by_id(db, user_id)
         if not user:
             raise HTTPException(
@@ -178,12 +188,14 @@ class UserService:
 
     @staticmethod
     def get_all_users(db: Session, skip: int = 0, limit: int = 100) -> List[User]:
-        """Get all users"""
+        # Get all users
+
         return UserRepository.get_all(db, skip, limit)
 
     @staticmethod
     def update_user(db: Session, user_id: UUID, user_update: UserUpdate, current_user: User) -> User:
-        """Update user"""
+        # Update user
+
         # Spec does not restrict user updates beyond authentication
 
         hashed_password = None
@@ -200,7 +212,8 @@ class UserService:
 
     @staticmethod
     def delete_user(db: Session, user_id: UUID, current_user: User) -> bool:
-        """Delete user"""
+        # Delete user
+
         # Spec does not restrict user deletes beyond authentication
 
         success = UserRepository.delete(db, user_id)

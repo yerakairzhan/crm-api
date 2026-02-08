@@ -1,6 +1,5 @@
-"""
-Comment Pydantic schemas for request/response validation
-"""
+# Comment Pydantic schemas for request/response validation
+
 from pydantic import BaseModel, Field, validator
 from typing import Optional
 from datetime import datetime
@@ -8,7 +7,8 @@ from uuid import UUID
 
 
 class CommentBase(BaseModel):
-    """Base comment schema"""
+    # Base comment schema
+
     text: str = Field(..., min_length=1, max_length=1000)
 
     @validator('text')
@@ -19,12 +19,14 @@ class CommentBase(BaseModel):
 
 
 class CommentCreate(CommentBase):
-    """Schema for creating a comment"""
+    # Schema for creating a comment
+
     task_id: UUID
 
 
 class CommentUpdate(BaseModel):
-    """Schema for updating a comment"""
+    # Schema for updating a comment
+
     text: Optional[str] = Field(None, min_length=1, max_length=1000)
 
     @validator('text')
@@ -35,7 +37,8 @@ class CommentUpdate(BaseModel):
 
 
 class CommentResponse(CommentBase):
-    """Schema for comment response"""
+    # Schema for comment response
+
     id: UUID
     task_id: UUID
     user_id: UUID

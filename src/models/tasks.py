@@ -1,6 +1,5 @@
-"""
-Task SQLAlchemy model
-"""
+# Task SQLAlchemy model
+
 from sqlalchemy import Column, String, DateTime, ForeignKey
 from db import UUIDType
 from sqlalchemy.orm import relationship
@@ -11,7 +10,8 @@ from db import Base
 
 
 class Task(Base):
-    """Task model"""
+    # Task model
+
     __tablename__ = "tasks"
 
     id = Column(UUIDType, primary_key=True, default=uuid.uuid4)

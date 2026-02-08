@@ -1,6 +1,5 @@
-"""
-User API endpoints and auth dependencies
-"""
+# User API endpoints and auth dependencies
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -28,7 +27,8 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
-    """Get current user from JWT access token"""
+    # Get current user from JWT access token
+
     token = credentials.credentials
     token_data = UserService.verify_token(token, token_type="access")
     if not token_data.user_id:
@@ -47,19 +47,22 @@ def get_current_user(
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    """Register a new user"""
+    # Register a new user
+
     return UserService.create_user(db, user)
 
 
 @router.post("/login", response_model=Token)
 def login_user(login_data: UserLogin, db: Session = Depends(get_db)):
-    """Login and return access/refresh tokens"""
+    # Login and return access/refresh tokens
+
     return UserService.login(db, login_data)
 
 
 @router.post("/refresh", response_model=Token)
 def refresh_token(refresh_data: RefreshTokenRequest, db: Session = Depends(get_db)):
-    """Refresh access token"""
+    # Refresh access token
+
     return UserService.refresh(db, refresh_data.refresh_token)
 
 
@@ -68,7 +71,8 @@ def get_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Get all users"""
+    # Get all users
+
     return UserService.get_all_users(db)
 
 
@@ -78,7 +82,8 @@ def get_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Get user by ID"""
+    # Get user by ID
+
     return UserService.get_user(db, user_id)
 
 
@@ -89,7 +94,8 @@ def update_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Update user"""
+    # Update user
+
     return UserService.update_user(db, user_id, user_update, current_user)
 
 
@@ -99,6 +105,7 @@ def delete_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Delete user"""
+    # Delete user
+
     UserService.delete_user(db, user_id, current_user)
     return None

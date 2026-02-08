@@ -1,6 +1,5 @@
-"""
-User repository for database operations
-"""
+# User repository for database operations
+
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from uuid import UUID
@@ -10,11 +9,13 @@ from src.schemas.users import UserCreate, UserUpdate
 
 
 class UserRepository:
-    """Repository for User CRUD operations"""
+    # Repository for User CRUD operations
+
 
     @staticmethod
     def create(db: Session, user: UserCreate, hashed_password: str) -> User:
-        """Create a new user"""
+        # Create a new user
+
         db_user = User(
             email=user.email,
             password=hashed_password,
@@ -27,23 +28,27 @@ class UserRepository:
 
     @staticmethod
     def get_by_id(db: Session, user_id: UUID) -> Optional[User]:
-        """Get user by ID"""
+        # Get user by ID
+
         return db.query(User).filter(User.id == user_id).first()
 
     @staticmethod
     def get_by_email(db: Session, email: str) -> Optional[User]:
-        """Get user by email"""
+        # Get user by email
+
         return db.query(User).filter(User.email == email).first()
 
     @staticmethod
     def get_all(db: Session, skip: int = 0, limit: int = 100) -> List[User]:
-        """Get all users with pagination"""
+        # Get all users with pagination
+
         return db.query(User).offset(skip).limit(limit).all()
 
     @staticmethod
     def update(db: Session, user_id: UUID, user_update: UserUpdate, hashed_password: Optional[str] = None) -> Optional[
         User]:
-        """Update user"""
+        # Update user
+
         db_user = UserRepository.get_by_id(db, user_id)
         if not db_user:
             return None
@@ -65,7 +70,8 @@ class UserRepository:
 
     @staticmethod
     def delete(db: Session, user_id: UUID) -> bool:
-        """Delete user"""
+        # Delete user
+
         db_user = UserRepository.get_by_id(db, user_id)
         if not db_user:
             return False

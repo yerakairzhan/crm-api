@@ -1,6 +1,5 @@
-"""
-Comment repository for database operations
-"""
+# Comment repository for database operations
+
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from uuid import UUID
@@ -10,11 +9,13 @@ from src.schemas.comments import CommentCreate, CommentUpdate
 
 
 class CommentRepository:
-    """Repository for Comment CRUD operations"""
+    # Repository for Comment CRUD operations
+
 
     @staticmethod
     def create(db: Session, comment: CommentCreate, user_id: UUID) -> Comment:
-        """Create a new comment"""
+        # Create a new comment
+
         db_comment = Comment(
             task_id=comment.task_id,
             user_id=user_id,
@@ -27,22 +28,26 @@ class CommentRepository:
 
     @staticmethod
     def get_by_id(db: Session, comment_id: UUID) -> Optional[Comment]:
-        """Get comment by ID"""
+        # Get comment by ID
+
         return db.query(Comment).filter(Comment.id == comment_id).first()
 
     @staticmethod
     def get_by_task(db: Session, task_id: UUID, skip: int = 0, limit: int = 100) -> List[Comment]:
-        """Get all comments for a task sorted by date (newest first)"""
+        # Get all comments for a task sorted by date (newest first)
+
         return db.query(Comment).filter(Comment.task_id == task_id).order_by(Comment.created_at.desc()).offset(skip).limit(limit).all()
 
     @staticmethod
     def get_all(db: Session, skip: int = 0, limit: int = 100) -> List[Comment]:
-        """Get all comments sorted by date (newest first)"""
+        # Get all comments sorted by date (newest first)
+
         return db.query(Comment).order_by(Comment.created_at.desc()).offset(skip).limit(limit).all()
 
     @staticmethod
     def update(db: Session, comment_id: UUID, comment_update: CommentUpdate) -> Optional[Comment]:
-        """Update comment"""
+        # Update comment
+
         db_comment = CommentRepository.get_by_id(db, comment_id)
         if not db_comment:
             return None
@@ -57,7 +62,8 @@ class CommentRepository:
 
     @staticmethod
     def delete(db: Session, comment_id: UUID) -> bool:
-        """Delete comment"""
+        # Delete comment
+
         db_comment = CommentRepository.get_by_id(db, comment_id)
         if not db_comment:
             return False

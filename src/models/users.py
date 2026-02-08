@@ -1,6 +1,5 @@
-"""
-User SQLAlchemy model
-"""
+# User SQLAlchemy model
+
 from sqlalchemy import Column, String, DateTime, Enum, ForeignKey
 from db import UUIDType
 from sqlalchemy.orm import relationship
@@ -12,13 +11,15 @@ from db import Base
 
 
 class UserRole(str, enum.Enum):
-    """User role enumeration"""
+    # User role enumeration
+
     AUTHOR = "author"
     USER = "user"
 
 
 class User(Base):
-    """User model for authentication and task management"""
+    # User model for authentication and task management
+
     __tablename__ = "users"
 
     id = Column(UUIDType, primary_key=True, default=uuid.uuid4)

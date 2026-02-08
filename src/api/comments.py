@@ -1,6 +1,5 @@
-"""
-Comment API endpoints
-"""
+# Comment API endpoints
+
 from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -21,7 +20,8 @@ def create_comment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Create a new comment (only AUTHOR role)"""
+    # Create a new comment (only AUTHOR role)
+
     return CommentService.create_comment(db, comment, current_user)
 
 
@@ -33,7 +33,8 @@ def get_comments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Get comments sorted by date (newest first)"""
+    # Get comments sorted by date (newest first)
+
     if task_id:
         return CommentService.get_comments_by_task(db, task_id, skip, limit)
     return CommentService.get_all_comments(db, skip, limit)
@@ -45,7 +46,8 @@ def get_comment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Get comment by ID"""
+    # Get comment by ID
+
     return CommentService.get_comment(db, comment_id)
 
 
@@ -56,7 +58,8 @@ def update_comment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Update comment (only owner)"""
+    # Update comment (only owner)
+
     return CommentService.update_comment(db, comment_id, comment_update, current_user)
 
 
@@ -66,6 +69,7 @@ def delete_comment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Delete comment (only owner)"""
+    # Delete comment (only owner)
+
     CommentService.delete_comment(db, comment_id, current_user)
     return None

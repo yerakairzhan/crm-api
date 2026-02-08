@@ -1,6 +1,5 @@
-"""
-Task API endpoints
-"""
+# Task API endpoints
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -21,7 +20,8 @@ def create_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Create a new task (only USER role)"""
+    # Create a new task (only USER role)
+
     return TaskService.create_task(db, task, current_user)
 
 
@@ -32,7 +32,8 @@ def get_tasks(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Get all tasks sorted by date (newest first)"""
+    # Get all tasks sorted by date (newest first)
+
     return TaskService.get_all_tasks(db, skip, limit)
 
 
@@ -42,7 +43,8 @@ def get_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Get task by ID"""
+    # Get task by ID
+
     return TaskService.get_task(db, task_id)
 
 
@@ -53,7 +55,8 @@ def update_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Update task (only owner)"""
+    # Update task (only owner)
+
     return TaskService.update_task(db, task_id, task_update, current_user)
 
 
@@ -63,6 +66,7 @@ def delete_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Delete task (only owner)"""
+    # Delete task (only owner)
+
     TaskService.delete_task(db, task_id, current_user)
     return None

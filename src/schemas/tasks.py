@@ -1,6 +1,5 @@
-"""
-Task Pydantic schemas for request/response validation
-"""
+# Task Pydantic schemas for request/response validation
+
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from datetime import datetime
@@ -8,7 +7,8 @@ from uuid import UUID
 
 
 class TaskBase(BaseModel):
-    """Base task schema"""
+    # Base task schema
+
     description: str = Field(..., min_length=1, max_length=1000)
     comment: str = Field(..., min_length=1, max_length=1000)
 
@@ -26,12 +26,14 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
-    """Schema for creating a task"""
+    # Schema for creating a task
+
     pass
 
 
 class TaskUpdate(BaseModel):
-    """Schema for updating a task"""
+    # Schema for updating a task
+
     description: Optional[str] = Field(None, min_length=1, max_length=1000)
     comment: Optional[str] = Field(None, min_length=1, max_length=1000)
 
@@ -49,7 +51,8 @@ class TaskUpdate(BaseModel):
 
 
 class TaskResponse(TaskBase):
-    """Schema for task response"""
+    # Schema for task response
+
     id: UUID
     user_id: UUID
     created_at: datetime
@@ -60,7 +63,8 @@ class TaskResponse(TaskBase):
 
 
 class TaskWithComments(TaskResponse):
-    """Schema for task with comments"""
+    # Schema for task with comments
+
     comments: List['CommentResponse'] = []
 
     class Config:

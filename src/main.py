@@ -1,6 +1,5 @@
-"""
-Main FastAPI application
-"""
+# Main FastAPI application
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -11,7 +10,8 @@ from src.api.routers import api_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Lifespan events for the application"""
+    # Lifespan events for the application
+
     # Startup: Initialize database
     init_db()
     yield
@@ -42,10 +42,10 @@ app = FastAPI(
 
     This API uses JWT (JSON Web Tokens) for authentication.
     To access protected endpoints:
-    1. Register a user at `/users/`
-    2. Login at `/users/login` to get access and refresh tokens
+    1. Register a user at `/users/` or `/auth/register`
+    2. Login at `/auth/login` to get access and refresh tokens
     3. Include the access token in the Authorization header: `Bearer <token>`
-    4. Refresh your token at `/users/refresh` when it expires
+    4. Refresh your token at `/auth/refresh` when it expires
     """,
     version="1.0.0",
     lifespan=lifespan
@@ -66,7 +66,8 @@ app.include_router(api_router)
 
 @app.get("/", tags=["root"])
 def root():
-    """Root endpoint"""
+    # Root endpoint
+
     return {
         "message": "Task Manager API",
         "version": "1.0.0",
@@ -77,7 +78,8 @@ def root():
 
 @app.get("/health", tags=["health"])
 def health_check():
-    """Health check endpoint"""
+    # Health check endpoint
+
     return {"status": "healthy"}
 
 

@@ -1,6 +1,5 @@
-"""
-Comment service with business logic
-"""
+# Comment service with business logic
+
 from sqlalchemy.orm import Session
 from uuid import UUID
 from fastapi import HTTPException, status
@@ -12,11 +11,13 @@ from src.models.users import User, UserRole
 
 
 class CommentService:
-    """Service layer for comment operations"""
+    # Service layer for comment operations
+
 
     @staticmethod
     def create_comment(db: Session, comment: CommentCreate, current_user: User):
-        """Create a new comment (only AUTHOR role)"""
+        # Create a new comment (only AUTHOR role)
+
         if current_user.role != UserRole.AUTHOR:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -34,17 +35,20 @@ class CommentService:
 
     @staticmethod
     def get_all_comments(db: Session, skip: int = 0, limit: int = 100):
-        """Get all comments sorted by date (newest first)"""
+        # Get all comments sorted by date (newest first)
+
         return CommentRepository.get_all(db, skip, limit)
 
     @staticmethod
     def get_comments_by_task(db: Session, task_id: UUID, skip: int = 0, limit: int = 100):
-        """Get comments for a task sorted by date (newest first)"""
+        # Get comments for a task sorted by date (newest first)
+
         return CommentRepository.get_by_task(db, task_id, skip, limit)
 
     @staticmethod
     def get_comment(db: Session, comment_id: UUID):
-        """Get comment by ID"""
+        # Get comment by ID
+
         comment = CommentRepository.get_by_id(db, comment_id)
         if not comment:
             raise HTTPException(
@@ -55,7 +59,8 @@ class CommentService:
 
     @staticmethod
     def update_comment(db: Session, comment_id: UUID, comment_update: CommentUpdate, current_user: User):
-        """Update comment (only owner)"""
+        # Update comment (only owner)
+
         comment = CommentRepository.get_by_id(db, comment_id)
         if not comment:
             raise HTTPException(
@@ -74,7 +79,8 @@ class CommentService:
 
     @staticmethod
     def delete_comment(db: Session, comment_id: UUID, current_user: User) -> None:
-        """Delete comment (only owner)"""
+        # Delete comment (only owner)
+
         comment = CommentRepository.get_by_id(db, comment_id)
         if not comment:
             raise HTTPException(

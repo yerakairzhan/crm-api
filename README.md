@@ -59,12 +59,15 @@ pytest -q
 
 ### Пользователи
 - `POST /users/` — регистрация
-- `POST /users/login` — логин (access/refresh токены)
-- `POST /users/refresh` — обновление access токена
 - `GET /users/` — список пользователей
 - `GET /users/{id}` — пользователь по ID
 - `PATCH /users/{id}` — обновление пользователя
 - `DELETE /users/{id}` — удаление пользователя
+
+### Авторизация
+- `POST /auth/register` — регистрация (алиас)
+- `POST /auth/login` — логин (access/refresh токены)
+- `POST /auth/refresh` — обновление access токена
 
 ### Задачи
 - `POST /tasks/` — создать задачу (только роль `user`)

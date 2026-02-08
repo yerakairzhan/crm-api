@@ -1,6 +1,5 @@
-"""
-Task repository for database operations
-"""
+# Task repository for database operations
+
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from uuid import UUID
@@ -10,11 +9,13 @@ from src.schemas.tasks import TaskCreate, TaskUpdate
 
 
 class TaskRepository:
-    """Repository for Task CRUD operations"""
+    # Repository for Task CRUD operations
+
 
     @staticmethod
     def create(db: Session, task: TaskCreate, user_id: UUID) -> Task:
-        """Create a new task"""
+        # Create a new task
+
         db_task = Task(
             user_id=user_id,
             description=task.description,
@@ -27,22 +28,26 @@ class TaskRepository:
 
     @staticmethod
     def get_by_id(db: Session, task_id: UUID) -> Optional[Task]:
-        """Get task by ID"""
+        # Get task by ID
+
         return db.query(Task).filter(Task.id == task_id).first()
 
     @staticmethod
     def get_all(db: Session, skip: int = 0, limit: int = 100) -> List[Task]:
-        """Get all tasks sorted by date (newest first)"""
+        # Get all tasks sorted by date (newest first)
+
         return db.query(Task).order_by(Task.created_at.desc()).offset(skip).limit(limit).all()
 
     @staticmethod
     def get_by_user(db: Session, user_id: UUID, skip: int = 0, limit: int = 100) -> List[Task]:
-        """Get all tasks for a specific user"""
+        # Get all tasks for a specific user
+
         return db.query(Task).filter(Task.user_id == user_id).order_by(Task.created_at.desc()).offset(skip).limit(limit).all()
 
     @staticmethod
     def update(db: Session, task_id: UUID, task_update: TaskUpdate) -> Optional[Task]:
-        """Update task"""
+        # Update task
+
         db_task = TaskRepository.get_by_id(db, task_id)
         if not db_task:
             return None
@@ -57,7 +62,8 @@ class TaskRepository:
 
     @staticmethod
     def delete(db: Session, task_id: UUID) -> bool:
-        """Delete task"""
+        # Delete task
+
         db_task = TaskRepository.get_by_id(db, task_id)
         if not db_task:
             return False

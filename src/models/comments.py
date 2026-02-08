@@ -1,6 +1,5 @@
-"""
-Comment SQLAlchemy model
-"""
+# Comment SQLAlchemy model
+
 from sqlalchemy import Column, String, DateTime, ForeignKey
 from db import UUIDType
 from sqlalchemy.orm import relationship
@@ -11,7 +10,8 @@ from db import Base
 
 
 class Comment(Base):
-    """Comment model for tasks"""
+    # Comment model for tasks
+
     __tablename__ = "comments"
 
     id = Column(UUIDType, primary_key=True, default=uuid.uuid4)

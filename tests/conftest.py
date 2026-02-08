@@ -1,9 +1,15 @@
 import os
+import sys
 import uuid
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
+
+# Ensure repo root is on sys.path for imports like `db`
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
 
 # Ensure tests use sqlite
 os.environ["DATABASE_URL"] = "sqlite:///./test.db"

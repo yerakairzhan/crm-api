@@ -1,6 +1,6 @@
 # User Pydantic schemas for request/response validation
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 from typing import Optional
 from datetime import datetime
 from uuid import UUID
@@ -19,8 +19,9 @@ class UserCreate(UserBase):
     password: str = Field(..., min_length=6, max_length=100)
     role: UserRole = UserRole.USER
 
-    @validator('password')
-    def password_strength(cls, v):
+    @field_validator('password')
+    @classmethod
+    def password_strength(cls, v: str):
         if len(v) < 6:
             raise ValueError('Password must be at least 6 characters long')
         return v
@@ -33,8 +34,9 @@ class UserUpdate(BaseModel):
     password: Optional[str] = Field(None, min_length=6, max_length=100)
     role: Optional[UserRole] = None
 
-    @validator('password')
-    def password_strength(cls, v):
+    @field_validator('password')
+    @classmethod
+    def password_strength(cls, v: Optional[str]):
         if v is not None and len(v) < 6:
             raise ValueError('Password must be at least 6 characters long')
         return v
@@ -49,8 +51,7 @@ class UserResponse(UserBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserLogin(BaseModel):

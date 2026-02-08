@@ -2,7 +2,7 @@ import os
 import sys
 import uuid
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
@@ -27,7 +27,13 @@ def db_session():
         connect_args={"check_same_thread": False},
     )
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    Base.metadata.drop_all(bind=engine)
+    with engine.begin() as conn:
+        conn.execute(text("PRAGMA foreign_keys=OFF"))
+        # Drop in dependency order to avoid FK cycle warnings under SQLite
+        conn.exec_driver_sql("DROP TABLE IF EXISTS comments")
+        conn.exec_driver_sql("DROP TABLE IF EXISTS tasks")
+        conn.exec_driver_sql("DROP TABLE IF EXISTS users")
+        conn.execute(text("PRAGMA foreign_keys=ON"))
     Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
     try:

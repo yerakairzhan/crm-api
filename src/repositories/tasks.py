@@ -5,6 +5,8 @@ from typing import Optional, List
 from uuid import UUID
 
 from src.models.tasks import Task
+from src.models.comments import Comment
+from src.models.users import User
 from src.schemas.tasks import TaskCreate, TaskUpdate
 
 
@@ -68,6 +70,10 @@ class TaskRepository:
         if not db_task:
             return False
 
+        # Ensure comments are removed first to avoid FK issues in SQLite
+        db.query(Comment).filter(Comment.task_id == task_id).delete()
+        # Clear last_task reference for users that point to this task
+        db.query(User).filter(User.task_id == task_id).update({User.task_id: None})
         db.delete(db_task)
         db.commit()
         return True

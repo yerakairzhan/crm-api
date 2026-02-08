@@ -1,6 +1,6 @@
 # Task Pydantic schemas for request/response validation
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
@@ -12,14 +12,16 @@ class TaskBase(BaseModel):
     description: str = Field(..., min_length=1, max_length=1000)
     comment: str = Field(..., min_length=1, max_length=1000)
 
-    @validator('description')
-    def description_not_empty(cls, v):
+    @field_validator('description')
+    @classmethod
+    def description_not_empty(cls, v: str):
         if not v or not v.strip():
             raise ValueError('Description cannot be empty')
         return v.strip()
 
-    @validator('comment')
-    def comment_not_empty(cls, v):
+    @field_validator('comment')
+    @classmethod
+    def comment_not_empty(cls, v: str):
         if not v or not v.strip():
             raise ValueError('Comment cannot be empty')
         return v.strip()
@@ -37,14 +39,16 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = Field(None, min_length=1, max_length=1000)
     comment: Optional[str] = Field(None, min_length=1, max_length=1000)
 
-    @validator('description')
-    def description_not_empty(cls, v):
+    @field_validator('description')
+    @classmethod
+    def description_not_empty(cls, v: Optional[str]):
         if v is not None and (not v or not v.strip()):
             raise ValueError('Description cannot be empty')
         return v.strip() if v else v
 
-    @validator('comment')
-    def comment_not_empty(cls, v):
+    @field_validator('comment')
+    @classmethod
+    def comment_not_empty(cls, v: Optional[str]):
         if v is not None and (not v or not v.strip()):
             raise ValueError('Comment cannot be empty')
         return v.strip() if v else v
@@ -58,8 +62,7 @@ class TaskResponse(TaskBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TaskWithComments(TaskResponse):
@@ -67,8 +70,7 @@ class TaskWithComments(TaskResponse):
 
     comments: List['CommentResponse'] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Import to avoid circular dependency

@@ -1,6 +1,6 @@
 # Comment Pydantic schemas for request/response validation
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Optional
 from datetime import datetime
 from uuid import UUID
@@ -11,8 +11,9 @@ class CommentBase(BaseModel):
 
     text: str = Field(..., min_length=1, max_length=1000)
 
-    @validator('text')
-    def text_not_empty(cls, v):
+    @field_validator('text')
+    @classmethod
+    def text_not_empty(cls, v: str):
         if not v or not v.strip():
             raise ValueError('Comment text cannot be empty')
         return v.strip()
@@ -29,8 +30,9 @@ class CommentUpdate(BaseModel):
 
     text: Optional[str] = Field(None, min_length=1, max_length=1000)
 
-    @validator('text')
-    def text_not_empty(cls, v):
+    @field_validator('text')
+    @classmethod
+    def text_not_empty(cls, v: Optional[str]):
         if v is not None and (not v or not v.strip()):
             raise ValueError('Comment text cannot be empty')
         return v.strip() if v else v
@@ -45,5 +47,4 @@ class CommentResponse(CommentBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

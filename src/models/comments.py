@@ -15,8 +15,8 @@ class Comment(Base):
     __tablename__ = "comments"
 
     id = Column(UUIDType, primary_key=True, default=uuid.uuid4)
-    task_id = Column(UUIDType, ForeignKey("tasks.id"), nullable=False)
-    user_id = Column(UUIDType, ForeignKey("users.id"), nullable=False)
+    task_id = Column(UUIDType, ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUIDType, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     text = Column(String(1000), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

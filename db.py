@@ -1,10 +1,11 @@
 # Database configuration and session management
 
-from sqlalchemy import create_engine, String, TypeDecorator, CHAR
+from sqlalchemy import create_engine, String, TypeDecorator, CHAR, event
+from sqlalchemy.engine import Engine
+import sqlite3
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
 # Database URL from environment variable or default
@@ -19,11 +20,17 @@ if DATABASE_URL.startswith("sqlite"):
     engine_kwargs["connect_args"] = {"check_same_thread": False}
 engine = create_engine(DATABASE_URL, **engine_kwargs)
 
+# Ensure SQLite enforces FK constraints
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    if isinstance(dbapi_connection, sqlite3.Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
 # UUID type with SQLite fallback + conversion
 class GUID(TypeDecorator):
     # Platform-independent GUID type.
-
-
     impl = CHAR(36)
     cache_ok = True
 

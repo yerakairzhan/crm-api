@@ -6,6 +6,7 @@ import { ObjectLiteral, Repository } from 'typeorm';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UserRole } from './entities/user.entity';
+import { Task } from '../tasks/entities/task.entity';
 
 jest.mock('bcrypt');
 
@@ -16,6 +17,7 @@ type MockRepo<T extends ObjectLiteral> = Partial<
 describe('UsersService', () => {
   let service: UsersService;
   let usersRepo: MockRepo<User>;
+  let tasksRepo: MockRepo<Task>;
 
   beforeEach(async () => {
     usersRepo = {
@@ -24,11 +26,15 @@ describe('UsersService', () => {
       save: jest.fn(),
       delete: jest.fn(),
     };
+    tasksRepo = {
+      findOne: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         { provide: getRepositoryToken(User), useValue: usersRepo },
+        { provide: getRepositoryToken(Task), useValue: tasksRepo },
       ],
     }).compile();
 
@@ -81,6 +87,7 @@ describe('UsersService', () => {
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
+
   it('findOne throws when user does not exist', async () => {
     usersRepo.findOne!.mockResolvedValue(null);
 
@@ -107,6 +114,7 @@ describe('UsersService', () => {
 
     expect(result.password).toBe('new-hash');
   });
+
 
   it('remove throws when user does not exist', async () => {
     usersRepo.delete!.mockResolvedValue({ affected: 0 });

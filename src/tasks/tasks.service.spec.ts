@@ -4,6 +4,7 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { TasksService } from './tasks.service';
 import { Task } from './entities/task.entity';
+import { UsersService } from '../users/users.service';
 
 type MockRepo<T extends ObjectLiteral> = Partial<
   Record<keyof Repository<T>, jest.Mock>
@@ -12,6 +13,7 @@ type MockRepo<T extends ObjectLiteral> = Partial<
 describe('TasksService', () => {
   let service: TasksService;
   let tasksRepo: MockRepo<Task>;
+  let usersService: jest.Mocked<UsersService>;
 
   beforeEach(async () => {
     tasksRepo = {
@@ -21,11 +23,15 @@ describe('TasksService', () => {
       findOne: jest.fn(),
       remove: jest.fn(),
     };
+    usersService = {
+      setTaskId: jest.fn(),
+    } as unknown as jest.Mocked<UsersService>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TasksService,
         { provide: getRepositoryToken(Task), useValue: tasksRepo },
+        { provide: UsersService, useValue: usersService },
       ],
     }).compile();
 
@@ -46,6 +52,7 @@ describe('TasksService', () => {
       comment: 'note',
       user_id: 'u1',
     });
+    expect(usersService.setTaskId).toHaveBeenCalledWith('u1', 't1');
     expect(result.user_id).toBe('u1');
   });
 

@@ -37,6 +37,7 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_NAME: crm_db
+      DB_SYNCHRONIZE: "true"
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
     ports:
       - "3000:3000"

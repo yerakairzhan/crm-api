@@ -19,7 +19,9 @@ import { AuthModule } from './auth/auth.module';
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'crm_db',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: process.env.NODE_ENV !== 'production', // Auto-create tables in dev
+      synchronize:
+        process.env.DB_SYNCHRONIZE === 'true' ||
+        process.env.NODE_ENV !== 'production', // Auto-create tables in dev or when explicitly enabled
       logging: process.env.NODE_ENV !== 'production',
     }),
     AuthModule,

@@ -9,12 +9,15 @@ import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Task } from '../tasks/entities/task.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Task)
+    private tasksRepository: Repository<Task>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -40,14 +43,14 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return this.usersRepository.find({
-      select: ['id', 'email', 'role', 'created_at', 'updated_at'],
+      select: ['id', 'email', 'role', 'task_id', 'created_at', 'updated_at'],
     });
   }
 
   async findOne(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'role', 'created_at', 'updated_at'],
+      select: ['id', 'email', 'role', 'task_id', 'created_at', 'updated_at'],
     });
 
     if (!user) {
@@ -94,6 +97,12 @@ export class UsersService {
   ): Promise<void> {
     await this.usersRepository.update(id, {
       refresh_token_hash: refreshTokenHash,
+    });
+  }
+
+  async setTaskId(id: string, taskId: string): Promise<void> {
+    await this.usersRepository.update(id, {
+      task_id: taskId,
     });
   }
 

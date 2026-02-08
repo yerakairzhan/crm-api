@@ -16,7 +16,7 @@ export class AuthService {
     const user = await this.usersService.create(createUserDto);
 
     // Return user without password
-    const { password, ...result } = user;
+    const { password: _password, ...result } = user;
     return result;
   }
 

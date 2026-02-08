@@ -23,6 +23,12 @@ export class User extends BaseEntity {
   })
   role: UserRole;
 
+  @Column({ name: 'task_id', type: 'uuid', nullable: true })
+  task_id?: string;
+
+  @Column({ name: 'refresh_token_hash', type: 'varchar', nullable: true })
+  refresh_token_hash?: string | null;
+
   // One user can have many tasks
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];

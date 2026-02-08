@@ -5,4 +5,9 @@ export class UpdateTaskDto {
   @Length(1, 1000)
   @IsOptional()
   description?: string;
+
+  @IsString()
+  @Length(1, 1000)
+  @IsOptional()
+  comment?: string;
 }

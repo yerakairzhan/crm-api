@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
@@ -17,10 +18,12 @@ describe('AuthService', () => {
     usersService = {
       create: jest.fn(),
       findByEmail: jest.fn(),
+      setRefreshTokenHash: jest.fn(),
     } as unknown as jest.Mocked<UsersService>;
 
     jwtService = {
       sign: jest.fn(),
+      verify: jest.fn(),
     } as unknown as jest.Mocked<JwtService>;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -28,6 +31,12 @@ describe('AuthService', () => {
         AuthService,
         { provide: UsersService, useValue: usersService },
         { provide: JwtService, useValue: jwtService },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -82,6 +91,7 @@ describe('AuthService', () => {
     });
     expect(result).toEqual({
       access_token: 'token',
+      refresh_token: 'token',
       user: { id: 'u1', email: 'user@test.com', role: 'user' },
     });
   });
@@ -107,5 +117,30 @@ describe('AuthService', () => {
     await expect(
       service.login({ email: 'user@test.com', password: 'wrong' }),
     ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('refresh issues new token pair', async () => {
+    const bcryptMock = bcrypt as jest.Mocked<typeof bcrypt>;
+    jwtService.verify.mockReturnValue({
+      email: 'user@test.com',
+      sub: 'u1',
+      role: 'user',
+    } as any);
+    usersService.findByEmail.mockResolvedValue({
+      id: 'u1',
+      email: 'user@test.com',
+      role: 'user',
+      password: 'hashed',
+      refresh_token_hash: 'rt-hash',
+    } as any);
+    bcryptMock.compare.mockResolvedValue(true as never);
+    jwtService.sign.mockReturnValue('new-token');
+
+    const result = await service.refresh('refresh-token');
+
+    expect(result).toEqual({
+      access_token: 'new-token',
+      refresh_token: 'new-token',
+    });
   });
 });

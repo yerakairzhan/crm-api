@@ -37,12 +37,13 @@ describe('TasksService', () => {
     tasksRepo.save!.mockResolvedValue({ id: 't1', user_id: 'u1' });
 
     const result = await service.create(
-      { description: 'task' },
+      { description: 'task', comment: 'note' },
       'u1',
     );
 
     expect(tasksRepo.create).toHaveBeenCalledWith({
       description: 'task',
+      comment: 'note',
       user_id: 'u1',
     });
     expect(result.user_id).toBe('u1');

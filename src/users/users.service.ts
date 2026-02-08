@@ -88,6 +88,15 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+  async setRefreshTokenHash(
+    id: string,
+    refreshTokenHash: string | null,
+  ): Promise<void> {
+    await this.usersRepository.update(id, {
+      refresh_token_hash: refreshTokenHash,
+    });
+  }
+
   async remove(id: string): Promise<void> {
     const result = await this.usersRepository.delete(id);
 

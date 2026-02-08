@@ -8,6 +8,9 @@ export class Task extends BaseEntity {
   @Column({ type: 'varchar', length: 1000 })
   description: string;
 
+  @Column({ type: 'varchar', length: 1000 })
+  comment: string;
+
   @Column({ name: 'user_id' })
   user_id: string;
 

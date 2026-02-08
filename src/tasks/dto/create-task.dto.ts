@@ -4,4 +4,8 @@ export class CreateTaskDto {
   @IsString()
   @Length(1, 1000)
   description: string;
+
+  @IsString()
+  @Length(1, 1000)
+  comment: string;
 }

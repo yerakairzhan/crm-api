@@ -1,95 +1,85 @@
-# CRM API (FastAPI) — Комментарии к задачам
+# CRM API (FastAPI)
 
-REST API модуль для CRM‑системы: пользователи, задачи и комментарии с JWT‑аутентификацией и ролевой моделью.
+Production-style REST API for task and comment management with JWT auth, role-based access control, PostgreSQL, automated tests, and CI.
 
-## Стек
-- Python, FastAPI
+## Project links
+- Repository: [https://github.com/yerakairzhan/crm-api](https://github.com/yerakairzhan/crm-api)
+- FastAPI branch: `fastapi`
+- NestJS implementation: [https://github.com/yerakairzhan/crm-api/tree/main](https://github.com/yerakairzhan/crm-api/tree/main)
+
+## Stack
+- Python
+- FastAPI
 - SQLAlchemy
 - PostgreSQL
 - JWT (access + refresh)
+- Pytest
+- GitHub Actions
+- Docker / Docker Compose
 
-## Роли
-- `user` — может создавать задачи
-- `author` — может создавать комментарии
+## Roles and permissions
+- `user` can create tasks.
+- `author` can create comments.
+- Only resource owner can update/delete tasks and comments.
 
-Пользователь может редактировать/удалять только свои задачи и комментарии.
+## Data model
+- `User`: `id`, `email`, `password`, `role`, `task_id`, `created_at`, `updated_at`
+- `Task`: `id`, `user_id`, `description`, `comment`, `created_at`, `updated_at`
+- `Comment`: `id`, `task_id`, `user_id`, `text`, `created_at`, `updated_at`
 
-## Запуск через Docker
+## API overview
+### Auth
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/refresh`
 
-1. Собрать и запустить сервисы:
+### Users
+- `POST /users/`
+- `GET /users/`
+- `GET /users/{id}`
+- `PATCH /users/{id}`
+- `DELETE /users/{id}`
+
+### Tasks
+- `POST /tasks/`
+- `GET /tasks/`
+- `GET /tasks/{id}`
+- `PATCH /tasks/{id}`
+- `DELETE /tasks/{id}`
+
+### Comments
+- `POST /comments/`
+- `GET /comments/`
+- `GET /comments/?task_id=...`
+- `GET /comments/{id}`
+- `PATCH /comments/{id}`
+- `DELETE /comments/{id}`
+
+## Run with Docker
 ```bash
 docker compose up --build
 ```
 
-2. API будет доступен:
-- `http://localhost:8001`
+- API: `http://localhost:8001`
+- PostgreSQL: `postgresql://postgres:postgres@localhost:5434/task_manager`
 
-PostgreSQL проброшен на порт `5434`:
-- `postgresql://postgres:postgres@localhost:5434/task_manager`
-
-## Локальный запуск без Docker
-
-1. Установить зависимости:
+## Run locally
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r src/requirements.txt
-```
-
-2. Экспортировать переменные окружения (пример):
-```bash
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5434/task_manager"
 export SECRET_KEY="change-me"
-```
-
-3. Запустить приложение:
-```bash
 uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-## Тесты
-
+## Tests
 ```bash
 pytest -q
 ```
 
-Тесты используют SQLite in‑memory, чтобы не зависеть от PostgreSQL.
+Current suite covers auth, users, tasks, comments, role restrictions, ownership checks, and validation scenarios.
 
-## Основные эндпоинты
-
-### Пользователи
-- `POST /users/` — регистрация
-- `GET /users/` — список пользователей
-- `GET /users/{id}` — пользователь по ID
-- `PATCH /users/{id}` — обновление пользователя
-- `DELETE /users/{id}` — удаление пользователя
-
-### Авторизация
-- `POST /auth/register` — регистрация (алиас)
-- `POST /auth/login` — логин (access/refresh токены)
-- `POST /auth/refresh` — обновление access токена
-
-### Задачи
-- `POST /tasks/` — создать задачу (только роль `user`)
-- `GET /tasks/` — список задач (новые первыми)
-- `GET /tasks/{id}` — задача по ID
-- `PATCH /tasks/{id}` — обновить задачу (только владелец)
-- `DELETE /tasks/{id}` — удалить задачу (только владелец)
-
-### Комментарии
-- `POST /comments/` — создать комментарий (только роль `author`)
-- `GET /comments/?task_id=...` — комментарии по задаче (новые первыми)
-- `GET /comments/{id}` — комментарий по ID
-- `PATCH /comments/{id}` — обновить комментарий (только владелец)
-- `DELETE /comments/{id}` — удалить комментарий (только владелец)
-
-## Бизнес‑правила
-- Создавать задачи может только пользователь с ролью `user`
-- Создавать комментарии может только пользователь с ролью `author`
-- Редактировать и удалять задачи/комментарии может только их автор
-- Список задач и комментариев отсортирован по дате (новые первыми)
-- У задачи может быть несколько комментариев, комментарий принадлежит одной задаче
-
-## Переменные окружения
-- `DATABASE_URL` — строка подключения к БД
-- `SECRET_KEY` — ключ для подписи JWT
+## Environment variables
+- `DATABASE_URL`
+- `SECRET_KEY`

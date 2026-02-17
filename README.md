@@ -1,225 +1,102 @@
-# CRM Backend API — Комментарии к задачам (NestJS + TypeORM)
+# CRM Backend API (NestJS)
 
-REST API модуль для CRM‑системы «Комментарии к задачам».  
-Проект выполнен на **NestJS**, **TypeORM** и **PostgreSQL** с JWT‑аутентификацией (access + refresh).
+Production-style backend for task and comment management with role-based access, JWT auth, PostgreSQL, Swagger docs, tests, and CI.
 
-**Репозиторий:** [https://github.com/yerakairzhan/crm-api](https://github.com/yerakairzhan/crm-api)  
-**Основная ветка (NestJS):** `main`  
-**Дополнительная реализация на Python/FastAPI:** [https://github.com/yerakairzhan/crm-api/tree/fastapi](https://github.com/yerakairzhan/crm-api/tree/fastapi)
+## Project links
+- Repository: [https://github.com/yerakairzhan/crm-api](https://github.com/yerakairzhan/crm-api)
+- Main branch (NestJS): `main`
+- Alternative implementation (FastAPI): [https://github.com/yerakairzhan/crm-api/tree/fastapi](https://github.com/yerakairzhan/crm-api/tree/fastapi)
 
----
+## Stack
+- NestJS
+- TypeScript
+- TypeORM
+- PostgreSQL
+- JWT (access + refresh)
+- Swagger/OpenAPI
+- Jest
+- GitHub Actions
+- Docker / Docker Compose
 
-## Зачем так сделано (аргументация решений)
+## Domain model
+- `User`: `id`, `email`, `password`, `role`, `task_id`, `created_at`, `updated_at`
+- `Task`: `id`, `user_id`, `description`, `comment`, `created_at`, `updated_at`
+- `Comment`: `id`, `task_id`, `user_id`, `text`, `created_at`, `updated_at`
 
-1. **NestJS + TypeORM** — это прямое соблюдение требований и стабильная структура: модули, DI, сервисы и контроллеры упрощают тестирование и сопровождение.
-2. **PostgreSQL** — промышленная СУБД, оптимальна для задач с отношениями (users → tasks → comments).
-3. **JWT access + refresh** — минимально достаточная, но полноценная схема авторизации. Access — короткоживущий, refresh — продлевает сессию без повторного логина.
-4. **RBAC (roles `user` / `author`)** — ключевые бизнес‑ограничения внедрены в сервисном слое, где проще всего контролировать доступ.
-5. **DTO + class‑validator** — обеспечивает предсказуемые контракты и проверку входных данных по требованиям (1–1000 символов).
-6. **Unit‑тесты + CI** — подтверждают корректность логики и дают автоматическую проверку проекта при каждом push/PR.
+## Access rules
+- Only role `user` can create tasks.
+- Only role `author` can create comments.
+- Update/delete operations are owner-only for tasks and comments.
+- Tasks and comments are returned newest first.
+- One task has many comments; one comment belongs to one task.
 
-Цель — не просто “чтобы работало”, а чтобы было **воспроизводимо, проверяемо и безопасно**.
+## API overview
+### Auth
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/refresh`
 
----
+### Users
+- `POST /users`
+- `GET /users`
+- `GET /users/:id`
+- `PATCH /users/:id`
+- `DELETE /users/:id`
 
-## Соответствие требованиям задания
+### Tasks
+- `POST /tasks`
+- `GET /tasks`
+- `GET /tasks/:id`
+- `PATCH /tasks/:id`
+- `DELETE /tasks/:id`
 
-### Технологии
-- ✅ NestJS  
-- ✅ TypeORM  
-- ✅ PostgreSQL  
-- ✅ TypeScript  
+### Comments
+- `POST /comments`
+- `GET /comments`
+- `GET /comments?task_id=...`
+- `GET /comments/:id`
+- `PATCH /comments/:id`
+- `DELETE /comments/:id`
 
-### Задача 1: Users
-**Сущность User**: `id`, `password`, `role`, `task_id`, `created_at`, `updated_at`
-
-**Эндпоинты:**
-- `POST /users` — создать пользователя
-- `GET /users/:id` — получить пользователя по ID
-- `GET /users` — получить список всех пользователей
-- `PATCH /users/:id` — редактировать пользователя
-- `DELETE /users/:id` — удалить пользователя
-
-### Задача 2: Tasks
-**Сущность Task**: `id`, `user_id`, `description`, `comment`, `created_at`, `updated_at`
-
-**Эндпоинты:**
-- `POST /tasks` — создать задачу
-- `GET /tasks/:id` — получить задачу по ID
-- `GET /tasks` — получить список всех задач
-- `PATCH /tasks/:id` — редактировать задачу
-- `DELETE /tasks/:id` — удалить задачу
-
-### Задача 3: Comments
-**Сущность Comment**: `id`, `task_id`, `user_id`, `text`, `created_at`, `updated_at`
-
-**Эндпоинты:**
-- `POST /comments` — создать комментарий
-- `GET /comments?task_id=xxx` — комментарии по задаче
-- `GET /comments/:id` — получить комментарий по ID
-- `PATCH /comments/:id` — редактировать комментарий
-- `DELETE /comments/:id` — удалить комментарий
-
-### Бизнес‑правила
-- ✅ Создавать задачу может только роль `user`
-- ✅ Создавать комментарий может только роль `author`
-- ✅ Редактировать/удалять может только автор ресурса
-- ✅ Сортировка задач/комментариев по дате (новые первыми)
-- ✅ Связь: одна задача → много комментариев
-
----
-
-## Архитектура и структура проекта
-
-```
-src/
-├── auth/                    # JWT аутентификация (access + refresh)
-├── users/                   # Users CRUD
-├── tasks/                   # Tasks CRUD
-├── comments/                # Comments CRUD
-├── common/                  # Гварды/декораторы/базовые сущности
-├── app.module.ts
-└── main.ts
-```
-
----
-
-## Авторизация
-
-**Основной флоу:**
-1. `POST /users` — регистрация
-2. `POST /auth/login` — получение `access_token` и `refresh_token`
-3. `POST /auth/refresh` — обновление access‑токена
-4. В защищенные эндпоинты передаем:
-```
-Authorization: Bearer <access_token>
-```
-
----
-
-## Запуск проекта
-
-### Вариант 1: Docker (рекомендуется)
-
+## Run with Docker
 ```bash
 docker compose up --build
 ```
 
-Сервис доступен:
-```
-http://localhost:3000
-```
+- API: `http://localhost:3000`
+- PostgreSQL: `postgresql://postgres:postgres@localhost:5434/crm_db`
 
-PostgreSQL доступен по порту **5434**:
-```
-postgresql://postgres:postgres@localhost:5434/crm_db
-```
-
-### Вариант 2: Локально
-
-1. Установить зависимости:
+## Run locally
 ```bash
 npm install
-```
-
-2. Создать `.env` на основе `.env.example`
-```bash
 cp .env.example .env
-```
-
-3. Запуск:
-```bash
 npm run start:dev
 ```
 
----
+## Environment
+From `.env.example`:
+- `NODE_ENV`
+- `PORT`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `JWT_SECRET`
 
-## Переменные окружения
-
-См. `.env.example`:
-
-```
-NODE_ENV=development
-PORT=3000
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_NAME=crm_db
-JWT_SECRET=your-secret-key-change-this-in-production
-```
-
-Для docker‑compose:
-```
-DB_PORT=5434
-```
-
----
-
-## Swagger / OpenAPI
-
-Swagger подключен и доступен в проекте.
-
-- UI документации: `http://localhost:3000/docs`
+## Swagger
+- UI: `http://localhost:3000/docs`
 - OpenAPI JSON: `http://localhost:3000/docs-json`
 
-Что документировано:
-- все endpoint'ы `auth`, `users`, `tasks`, `comments`
-- request/response схемы DTO
-- коды ответов и основные ошибки (`400`, `401`, `403`, `404`, `409`)
-- Bearer JWT авторизация в UI (`Authorize`)
-
-Как использовать:
-1. Выполнить `POST /auth/login` и получить `access_token`.
-2. Нажать `Authorize` в Swagger UI.
-3. Вставить токен в формате `Bearer <access_token>`.
-4. Вызывать защищенные endpoint'ы прямо из Swagger.
-
----
-
-## Тестирование
-
-Unit‑тесты реализованы в модулях:
-- `src/auth/auth.service.spec.ts`
-- `src/users/users.service.spec.ts`
-- `src/tasks/tasks.service.spec.ts`
-- `src/comments/comments.service.spec.ts`
-
-Запуск:
+## Tests
 ```bash
 npm test
-```
-
-Покрытие:
-```bash
 npm run test:cov
 ```
 
----
-
-## CI (GitHub Actions)
-
-Workflow: `.github/workflows/ci.yml`  
-Включает:
-- ESLint
-- Unit‑тесты и coverage
-- Сборка Docker образа
-- Security checks (`npm audit`, Snyk)
-
----
-
-## Дополнительная ветка на Python/FastAPI
-
-Ветка `fastapi` содержит альтернативную реализацию того же задания на **FastAPI + SQLAlchemy**:  
-[https://github.com/yerakairzhan/crm-api/tree/fastapi](https://github.com/yerakairzhan/crm-api/tree/fastapi)
-
-Это демонстрирует гибкость и способность работать с разными стек‑технологиями при сохранении требований.
-
----
-
-## Почему меня стоит рассмотреть
-
-- Я не просто «закрываю задачу», а делаю **поддерживаемый и проверяемый API**.
-- Соблюдены все бизнес‑правила и архитектурные требования.
-- Сделаны тесты и CI, чтобы гарантировать стабильность.
-- Есть альтернативная реализация на Python, что показывает **широкий стек и способность быстро адаптироваться**.
+## CI
+Workflow: `.github/workflows/ci.yml`
+- lint
+- tests + coverage
+- docker build
+- security checks (`npm audit`, Snyk)
